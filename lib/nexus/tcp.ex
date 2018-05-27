@@ -10,6 +10,12 @@ defmodule Nexus.TCP do
     :gen_tcp.accept(socket, timeout)
   end
 
+  def acknowlege(_, _), do: :ok
+
+  def send(socket, payload) do
+    :gen_tcp.send(socket, payload)
+  end
+
   def set_opts(socket, opts) do
     :inet.setopts(socket, opts)
   end
@@ -19,4 +25,6 @@ defmodule Nexus.TCP do
   end
 
   def messages, do: {:tcp, :tcp_closed, :tcp_error}
+
+  def peer_name(socket), do: :inet.peername(socket)
 end

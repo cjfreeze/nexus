@@ -55,4 +55,11 @@ defmodule Nexus do
     }
     |> Config.init()
   end
+
+  def acknowlege do
+    receive do
+      {:pre_ack, transport, socket, timeout} ->
+        transport.acknowlege(socket, timeout)
+    end
+  end
 end

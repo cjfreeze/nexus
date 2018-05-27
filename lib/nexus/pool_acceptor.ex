@@ -37,5 +37,6 @@ defmodule Nexus.PoolAcceptor do
   defp handle_accept({:ok, socket}, %{handler: handler, transport: transport, config: %{state: state}}) do
     {:ok, pid} = handler.start_handling_process(socket, transport, state)
     transport.controlling_process(socket, pid)
+    send pid, {:pre_ack, transport, socket, :infinity}
   end
 end
