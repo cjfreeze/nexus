@@ -2,8 +2,8 @@ defmodule Nexus do
   alias Nexus.{
     Config,
     PoolAcceptorSupervisor,
-    SSL,
-    TCP,
+    Transport.SSL,
+    Transport.TCP,
   }
 
   def start_tcp(port, handler, nexus_opts \\ [], state \\ nil) do

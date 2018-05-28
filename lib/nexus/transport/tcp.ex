@@ -1,4 +1,4 @@
-defmodule Nexus.TCP do
+defmodule Nexus.Transport.TCP do
   alias Nexus.Transport
   @behaviour Transport
 

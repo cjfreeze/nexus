@@ -1,4 +1,4 @@
-defmodule Nexus.SSL do
+defmodule Nexus.Transport.SSL do
   alias Nexus.Transport
   @behaviour Transport
 
