@@ -22,9 +22,7 @@ defmodule Nexus.PoolAcceptor do
 
   def start_link(socket, config) do
     state = init(socket, config)
-    pid = Process.spawn(fn -> accept(state) end, [])
-    Process.link(pid)
-    {:ok, pid}
+    {:ok, spawn_link(fn -> accept(state) end)}
   end
 
   defp accept(%{transport: transport, socket: socket} = state) do

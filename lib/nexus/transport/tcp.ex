@@ -2,8 +2,11 @@ defmodule Nexus.Transport.TCP do
   alias Nexus.Transport
   @behaviour Transport
 
-  def listen(port, _opts) do
-    :gen_tcp.listen(port, [:binary, active: false, packet: :raw, reuseaddr: true])
+  @default_opts [:binary, active: false, packet: :raw, reuseaddr: true]
+
+  def listen(port, _provided_opts) do
+    # opts = Keyword.merge(@default_opts, provided_opts)
+    :gen_tcp.listen(port, @default_opts)
   end
 
   def accept(socket, timeout) do

@@ -24,9 +24,10 @@ defmodule Nexus do
     |> PoolAcceptorSupervisor.start_link()
   end
 
-  def child_spec_tcp(port, handler, nexus_opts, state) do
-    :nexus
-    |> Application.get_env(:tcp_transport, TCP)
+  def child_spec_tcp(otp_app, port, handler, nexus_opts, state) do
+    otp_app
+    |> Application.get_env(Nexus, [])
+    |> Keyword.get(:tcp_transport, TCP)
     |> do_child_spec(port, handler, nexus_opts, state)
   end
 
