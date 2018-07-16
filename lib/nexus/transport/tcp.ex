@@ -19,6 +19,20 @@ defmodule Nexus.Transport.TCP do
     :gen_tcp.send(socket, payload)
   end
 
+  def send_file(socket, file) do
+    :file.sendfile(file, socket)
+  end
+
+  def send_file(socket, file, _offset, :all, _opts), do: send_file(socket, file)
+  def send_file(socket, file, offset, length, opts) do
+    with {:ok, fd} <- File.open(file, [:raw, :read, :binary]),
+         {:ok, ^length} <- :file.sendfile(fd, socket, offset, length, opts) do
+      :ok
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
   def set_opts(socket, opts) do
     :inet.setopts(socket, opts)
   end

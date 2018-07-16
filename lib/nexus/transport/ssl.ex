@@ -1,6 +1,10 @@
 defmodule Nexus.Transport.SSL do
+  # import Kernel, except: [send: 2]
   alias Nexus.Transport
+  alias Nexus.Transport.SSL
+
   @behaviour Transport
+  @default_chunk_size 8_191
 
   def listen(port, opts) do
     :ssl.start()
@@ -27,11 +31,44 @@ defmodule Nexus.Transport.SSL do
   end
 
   def acknowlege(socket, timeout) do
-    :ssl.ssl_accept(socket, timeout)
+    :ssl.handshake(socket, timeout)
   end
 
   def send(socket, payload) do
     :ssl.send(socket, payload)
+  end
+
+  def send_file(socket, file) do
+    send_file(file, socket, 0, :all, [])
+  end
+
+  def send_file(socket, file, offset, length, opts) do
+    with {:ok, fd} <- File.open(file, [:raw, :read, :binary]),
+         {:ok, ^offset} <- offset_file(fd, offset) do
+      do_send_file(fd, socket, 0, length, opts)
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp offset_file(_, 0), do: {:ok, 0}
+  defp offset_file(fd, offset), do: :file.position(fd, offset)
+
+  defp do_send_file(fd, _socket, read, length, _opts) when read >= length, do: File.close(fd)
+  defp do_send_file(fd, socket, read, length, opts) do
+    chunk_size =
+      if read + @default_chunk_size > length,
+        do: length - read,
+        else: @default_chunk_size
+    fd
+    |> :file.read(chunk_size)
+    |> case do
+      {:ok, chunk} ->
+        SSL.send(socket, chunk)
+        do_send_file(fd, socket, read + chunk_size, length, opts)
+      :eof -> File.close(fd)
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def set_opts(socket, opts) do

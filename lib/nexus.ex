@@ -24,6 +24,17 @@ defmodule Nexus do
     |> PoolAcceptorSupervisor.start_link()
   end
 
+  def child_spec(opts) do
+    port = Keyword.get(opts, :port, 4000)
+    handler = Keyword.fetch!(opts, :handler)
+    state = Keyword.fetch!(opts, :state)
+    otp_app = Keyword.fetch!(opts, :otp_app)
+    case Keyword.get(opts, :transport, :tcp) do
+      :tcp -> child_spec_tcp(otp_app, port, handler, opts, state)
+      :ssl -> child_spec_ssl(otp_app, port, handler, opts, state)
+    end
+  end
+
   def child_spec_tcp(otp_app, port, handler, nexus_opts, state) do
     otp_app
     |> Application.get_env(Nexus, [])
@@ -31,9 +42,10 @@ defmodule Nexus do
     |> do_child_spec(port, handler, nexus_opts, state)
   end
 
-  def child_spec_ssl(port, handler, nexus_opts, state) do
-    :nexus
-    |> Application.get_env(:ssl_transport, SSL)
+  def child_spec_ssl(otp_app, port, handler, nexus_opts, state) do
+    otp_app
+    |> Application.get_env(Nexus, [])
+    |> Keyword.get(:ssl_transport, SSL)
     |> do_child_spec(port, handler, nexus_opts, state)
   end
 
