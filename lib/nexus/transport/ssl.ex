@@ -46,6 +46,7 @@ defmodule Nexus.Transport.SSL do
     with {:ok, fd} <- File.open(file, [:raw, :read, :binary]),
          {:ok, ^offset} <- offset_file(fd, offset) do
       do_send_file(fd, socket, 0, length, opts)
+      :ok
     else
       {:error, reason} -> {:error, reason}
     end
