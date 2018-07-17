@@ -21,6 +21,7 @@ defmodule Nexus.Transport.TCP do
 
   def send_file(socket, file) do
     :file.sendfile(file, socket)
+    :ok
   end
 
   def send_file(socket, file, _offset, :all, _opts), do: send_file(socket, file)
